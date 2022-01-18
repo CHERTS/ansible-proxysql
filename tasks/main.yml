@@ -1,12 +1,12 @@
 ---
 - name: PROXYSQL MAIN TASK | Check vars
-  include: "check_vars.yml"
+  include_tasks: "check_vars.yml"
   tags:
     - proxysql
     - proxysql_check
 
 - name: PROXYSQL MAIN TASK | Install the correct repository for RedHat
-  include: "redhat.yml"
+  include_tasks: "redhat.yml"
   when:
     - zabbix_agent_os_family == "RedHat"
   tags:
@@ -15,7 +15,7 @@
     - proxysql_install
 
 - name: PROXYSQL MAIN TASK | Install the correct repository for Debian
-  include: "debian.yml"
+  include_tasks: "debian.yml"
   when:
     - zabbix_agent_os_family == "Debian"
   tags:
@@ -24,7 +24,7 @@
     - proxysql_install
 
 - name: PROXYSQL MAIN TASK | Configuring ProxySQL
-  include: "proxysql.yml"
+  include_tasks: "proxysql.yml"
   tags:
     - proxysql
     - proxysql_limits
