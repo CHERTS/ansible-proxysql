@@ -128,7 +128,7 @@ _Use a fixed tag instead of origin/master if possible_
 ```yaml
 - hosts: proxylb
   roles:
-    - proxysql
+    - cherts.proxysql
 ```
 
 ### Inventory
