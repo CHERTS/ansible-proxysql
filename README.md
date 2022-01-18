@@ -1,3 +1,7 @@
+[![Ansible Galaxy](https://img.shields.io/badge/role-cherts.proxysql-blue)](https://galaxy.ansible.com/cherts/proxysql)
+[![Ansible Galaxy Quality Score](https://img.shields.io/ansible/quality/57626)](https://galaxy.ansible.com/cherts/proxysql)
+[![Ansible Galaxy Downloads](https://img.shields.io/ansible/role/d/57626.svg?color=blue)](https://galaxy.ansible.com/cherts/proxysql)
+
 # ProxySQL Ansible role
 
 This role will install proxysql on RedHat/CentOS (7, 8) and Ubuntu (16.04, 18.04, 20.04) from [sysown release](https://github.com/sysown/proxysql/releases).
