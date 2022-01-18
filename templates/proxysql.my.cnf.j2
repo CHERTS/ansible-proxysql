@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+[client]
+user = {{ proxysql_admin_user }}
+password = {{ proxysql_admin_password }}
+{% if proxysql_admin_interface == '0.0.0.0' %}
+host = 127.0.0.1
+{% else %}
+host = {{ proxysql_admin_interface }}
+{% endif %}
+port = {{ proxysql_admin_port }}

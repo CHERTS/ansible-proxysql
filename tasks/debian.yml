@@ -1,0 +1,75 @@
+---
+- name: PROXYSQL DEBIAN TASK | Adds repository key
+  apt_key:
+    url: https://repo.proxysql.com/ProxySQL/repo_pub_key
+    state: present
+  become: yes
+  tags:
+    - proxysql
+    - proxysql_repo
+
+- name: PROXYSQL DEBIAN TASK | Adds ProxySQL repositories
+  apt_repository:
+    repo: 'deb https://repo.proxysql.com/ProxySQL/proxysql-{{ proxysql_version }}.x/{{ ansible_distribution_release }} ./'
+    state: present
+  become: yes
+  notify:
+    - Update apt cache
+  tags:
+    - proxysql
+    - proxysql_repo
+
+- name: PROXYSQL DEBIAN TASK | Installs ProxySQL & python-mysqldb
+  apt:
+    name: "{{ item }}"
+    state: "{{ proxysql_package_state }}"
+    update_cache: yes
+    cache_valid_time: 0
+  loop:
+    - proxysql
+    - python-mysqldb
+  become: yes
+  tags:
+    - proxysql
+    - proxysql_install
+
+- name: PROXYSQL DEBIAN TASK | Pip3 install PyMySQL packages
+  pip:
+    name: "{{ item }}"
+    executable: pip3
+  loop:
+    - PyMySQL
+  become: yes
+  tags:
+    - system_config
+
+- name: PROXYSQL DEBIAN TASK | Holds ProxySQL version
+  dpkg_selections:
+    name: proxysql
+    selection: hold
+  become: yes
+  tags:
+    - proxysql
+    - proxysql_install
+
+- name: PROXYSQL DEBIAN TASK | Installs mysql-common & client
+  apt:
+    name: "{{ item }}"
+    state: "present"
+  loop:
+    - mysql-common
+    - mysql-client
+  become: yes
+  tags:
+    - proxysql
+    - proxysql_install
+
+- name: PROXYSQL DEBIAN TASK | Enable the service
+  service:
+    name: "{{ proxysql_service }}"
+    enabled: yes
+    use: service
+  become: yes
+  tags:
+    - proxysql
+    - proxysql_install

@@ -1,0 +1,64 @@
+---
+- name: PROXYSQL TASK | Add ProxySQL limits
+  template:
+    src: proxysql_limits.conf.j2
+    dest: /etc/security/limits.d/proxysql.conf
+    owner: root
+    group: root
+    mode: '0644'
+  tags:
+    - proxysql
+    - proxysql_limits
+
+- name: PROXYSQL TASK | Configures ProxySQL
+  template:
+    src: proxysql.cnf.j2
+    dest: /etc/proxysql.cnf
+    mode: 0644
+    owner: proxysql
+    group: proxysql
+  notify:
+    - Load config from file to memory
+  tags:
+    - proxysql
+    - proxysql_config
+
+- name: PROXYSQL TASK | Ensures ProxySQL is started and enabled
+  service:
+    name: "{{ proxysql_service }}"
+    state: started
+    enabled: yes
+  tags:
+    - proxysql
+    - proxysql_config
+
+- name: PROXYSQL TASK | Creates log dir
+  file:
+    path: /var/log/proxysql/
+    state: directory
+    owner: proxysql
+    group: proxysql
+    mode: 0755
+  tags:
+    - proxysql
+    - proxysql_config
+
+- name: PROXYSQL TASK | Adds logrotate
+  template:
+    src: proxysql.logrotate.conf.j2
+    dest: /etc/logrotate.d/proxysql
+    mode: 0644
+  tags:
+    - proxysql
+    - proxysql_config
+
+- name: PROXYSQL TASK | Adds proxysql.my.cnf
+  template:
+    src: proxysql.my.cnf.j2
+    dest: /etc/proxysql.my.cnf
+    owner: proxysql
+    group: proxysql
+    mode: 0600
+  tags:
+    - proxysql
+    - proxysql_config

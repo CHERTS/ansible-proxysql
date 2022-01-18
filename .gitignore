@@ -1,0 +1,7 @@
+__pycache__
+.ropeproject
+.tags
+.vagrant
+*.log
+*.pyc
+*.idea/*

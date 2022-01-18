@@ -1,0 +1,208 @@
+# {{ ansible_managed }}
+
+#file proxysql.cfg
+
+# This config file is parsed using libconfig , and its grammar is described in:
+# http://www.hyperrealm.com/libconfig/libconfig_manual.html#Configuration-File-Grammar
+# Grammar is also copied at the end of this file
+
+datadir="{{ proxysql_datadir }}"
+errorlog="{{ proxysql_errorlog }}"
+
+admin_variables=
+{
+{% if proxysql_cluster_name %}
+  admin_credentials="{{ proxysql_admin_user }}:{{ proxysql_admin_password }};{{ proxysql_cluster_name }}:{{ proxysql_cluster_password }}"
+{% else %}
+  admin_credentials="{{ proxysql_admin_user }}:{{ proxysql_admin_password }}"
+{% endif %}
+  web_enabled="{{ proxysql_web_enabled }}"
+  web_port="{{ proxysql_web_port }}"
+  mysql_ifaces="{{ proxysql_admin_interface }}:{{ proxysql_admin_port }};{{ proxysql_admin_socket }}"
+  refresh_interval="{{ proxysql_refresh_interval }}"
+  stats_credentials="{{ proxysql_stats_user }}:{{ proxysql_stats_password }}"
+# debug=true
+{% if proxysql_cluster_name %}
+  cluster_username="{{ proxysql_cluster_name }}"
+  cluster_password="{{ proxysql_cluster_password }}"
+  check_interval_ms="{{ proxysql_cluster_check_interval_ms }}"
+  check_status_frequency="{{ proxysql_cluster_check_status_frequency }}"
+{% endif %}
+{% for line in proxysql_admin_raw_options | default([]) %}
+  {{ line }}
+{% endfor %}
+}
+
+{% if proxysql_cluster_name %}
+proxysql_servers =
+(
+{% for host in groups[proxysql_cluster_servers_group] %}
+    {
+        # {{ host }}
+        hostname="{{ hostvars[host].ansible_default_ipv4.address|default(hostvars[host].ansible_all_ipv4_addresses[0]) }}"
+        port={{ hostvars[host]['proxysql_admin_port'] | default(proxysql_admin_port) }}
+        comment="{{ host }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+)
+
+{% endif %}
+
+mysql_variables=
+{
+  threads="{{ proxysql_threads }}"
+  max_connections="{{ proxysql_max_connections }}"
+  default_query_delay="{{ proxysql_default_query_delay }}"
+  default_query_timeout="{{ proxysql_default_query_timeout }}"
+  have_compress="{{ proxysql_have_compress }}"
+  poll_timeout="{{ proxysql_poll_timeout }}"
+  interfaces="{{ proxysql_mysql_interface }}:{{ proxysql_mysql_port }};{{ proxysql_mysql_socket }}"
+  default_schema="{{ proxysql_default_schema }}"
+  stacksize="{{ proxysql_stacksize }}"
+  server_capabilities="{{ proxysql_server_capabilities }}"
+  server_version="{{ proxysql_server_version }}"
+  connect_timeout_server="{{ proxysql_connect_timeout_server }}"
+  monitor_username="{{ proxysql_monitor_user }}"
+  monitor_password="{{ proxysql_monitor_password }}"
+  monitor_history="{{ proxysql_monitor_history }}"
+  monitor_connect_interval="{{ proxysql_monitor_connect_interval }}"
+  monitor_ping_interval="{{ proxysql_monitor_ping_interval }}"
+  monitor_read_only_interval="{{ proxysql_monitor_read_only_interval }}"
+  monitor_read_only_timeout="{{ proxysql_monitor_read_only_timeout }}"
+  monitor_slave_lag_when_null="{{ proxysql_monitor_slave_lag_when_null }}"
+  monitor_replication_lag_interval="{{ proxysql_monitor_replication_lag_interval }}"
+{% if proxysql_monitor_galera_healthcheck_interval is defined %}
+  monitor_galera_healthcheck_interval="{{ proxysql_monitor_galera_healthcheck_interval }}"
+{% endif %}
+{% if proxysql_monitor_galera_healthcheck_timeout is defined %}
+  monitor_galera_healthcheck_timeout="{{ proxysql_monitor_galera_healthcheck_timeout }}"
+{% endif %}
+  ping_interval_server_msec ="{{ proxysql_ping_interval_server_msec }}"
+  ping_timeout_server="{{ proxysql_ping_timeout_server }}"
+  commands_stats="{{ proxysql_commands_stats }}"
+  sessions_sort="{{ proxysql_sessions_sort }}"
+  connect_retries_on_failure="{{ proxysql_connect_retries_on_failure }}"
+{% for line in proxysql_mysql_raw_options | default([]) %}
+  {{ line }}
+{% endfor %}
+}
+
+
+# Defines all the MySQL servers
+
+mysql_servers =
+(
+{% for srv in proxysql_mysql_servers %}
+  {
+    address="{{ srv.address }}",
+    port={{ srv.port | default(3306) }},
+    status="{{ srv.status | default('ONLINE') }}",
+    hostgroup={{ srv.hostgroup | default(0) }},
+    gtid_port={{ srv.gtid_port | default(0) }},
+    weight={{ srv.weight | default(1) }},
+    compression={{ srv.compression | default(0) }},
+    max_connections={{ srv.max_connections | default(200) }},
+    max_replication_lag={{ srv.max_replication_lag | default(0) }},
+    use_ssl={{ srv.use_ssl | default(0) }},
+    max_latency_ms={{ srv.max_latency_ms | default(0) }},
+    comment="{{ srv.comment | default('') }}"
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% if proxysql_mysql_servers_group is defined %}
+{% for srv in groups[proxysql_mysql_servers_group] %}
+  {
+    address="{{ hostvars[srv]['ansible_' + hostvars[srv].proxysql_upstream_mysql_interface].ipv4.address }}",
+    port={{ hostvars[srv].proxysql_upstream_mysql_port | default(3306) }},
+    hostgroup={{ hostvars[srv].proxysql_hostgroup }}
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+)
+
+
+# Defines all the MySQL users
+
+mysql_users:
+(
+{% for usr in proxysql_mysql_users %}
+  {
+    username="{{ usr.username }}",
+    password="{{ usr.password }}",
+    default_hostgroup="{{ usr.default_hostgroup | default(0) }}"
+    max_connections="{{ usr.max_connections | default(1000) }}"
+    default_schema="{{ usr.default_schema | default('information_schema') }}"
+    active="{{ usr.active | default(1) }}"
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+)
+
+# Defines MySQL Query Rules
+
+mysql_query_rules:
+(
+{% for rule in proxysql_mysql_query_rules %}
+  {
+    rule_id={{ loop.index }}
+    active={{ rule.active | default(1) }},
+    match_pattern="{{ rule.match_pattern }}",
+    destination_hostgroup={{ rule.destination_hostgroup | default(0) }},
+    apply={{ rule.apply | default(1) }}
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+)
+
+# Defines MySQL replication hostgroups
+
+mysql_replication_hostgroups=
+(
+{% for rpl in proxysql_mysql_replication_hostgroups %}
+  {
+    writer_hostgroup="{{ rpl.writer_hostgroup }}",
+    reader_hostgroup="{{ rpl.reader_hostgroup }}",
+    check_type="{{ rpl.check_type | default('read_only') }}",
+    comment="{{ rpl.comment }}"
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+)
+
+scheduler=
+(
+#  {
+#    id=1
+#    active=0
+#    interval_ms=10000
+#    filename="/var/lib/proxysql/proxysql_galera_checker.sh"
+#    arg1="0"
+#    arg2="0"
+#    arg3="0"
+#    arg4="1"
+#    arg5="/var/lib/proxysql/proxysql_galera_checker.log"
+#  }
+)
+
+# http://www.hyperrealm.com/libconfig/libconfig_manual.html#Configuration-File-Grammar
+#
+# Below is the BNF grammar for configuration files. Comments and include directives are not part of the grammar, so they are not included here. 
+#
+# configuration = setting-list | empty
+#
+# setting-list = setting | setting-list setting
+#     
+# setting = name (":" | "=") value (";" | "," | empty)
+#     
+# value = scalar-value | array | list | group
+#     
+# value-list = value | value-list "," value
+#     
+# scalar-value = boolean | integer | integer64 | hex | hex64 | float
+#                | string
+#     
+# scalar-value-list = scalar-value | scalar-value-list "," scalar-value
+#     
+# array = "[" (scalar-value-list | empty) "]"
+#     
+# list = "(" (value-list | empty) ")"
+#     
+# group = "{" (setting-list | empty) "}"
+#     
+# empty =

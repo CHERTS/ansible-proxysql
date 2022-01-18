@@ -1,0 +1,140 @@
+---
+proxysql_version: 2.3
+proxysql_package_state: latest
+
+# YUM repo
+proxysql_repo_yum:
+  - name: proxysql_repo
+    description: ProxySQL YUM repository
+    baseurl: https://repo.proxysql.com/ProxySQL/proxysql-{{ proxysql_version }}.x/centos/\$releasever
+    priority: 1
+    gpgcheck: 1
+    gpgkey: https://repo.proxysql.com/ProxySQL/repo_pub_key
+    state: present
+
+# Service name
+proxysql_service: proxysql
+
+# Force database wipe
+proxysql_initial: false
+
+# ProxySQL
+proxysql_datadir: "/var/lib/proxysql"
+proxysql_errorlog: "/var/lib/proxysql/proxysql.log"
+
+# ProxySQL admin_variables
+proxysql_admin_user: admin
+proxysql_admin_password: admin
+proxysql_admin_interface: 127.0.0.1
+proxysql_admin_port: 6032
+proxysql_admin_socket: "/tmp/proxysql_admin.sock"
+proxysql_web_enabled: "true"
+proxysql_web_port: 6080
+proxysql_refresh_interval: 2000
+proxysql_stats_user: "stats"
+proxysql_stats_password: "admin"
+proxysql_admin_raw_options: []
+
+# ProxySQL admin_variables (Cluster mode)
+proxysql_cluster_name: false
+proxysql_cluster_password: false
+proxysql_cluster_check_interval_ms: 200
+proxysql_cluster_check_status_frequency: 100
+
+# ProxySQL mysql_variables
+# See https://proxysql.com/documentation/global-variables/mysql-variables/
+proxysql_mysql_interface: 0.0.0.0
+proxysql_mysql_port: 6033
+proxysql_mysql_socket: "/tmp/proxysql.sock"
+proxysql_threads: 4
+proxysql_max_connections: 2048
+proxysql_default_query_delay: 0
+proxysql_default_query_timeout: 86400000
+proxysql_have_compress: "true"
+proxysql_poll_timeout: 2000
+proxysql_default_schema: "information_schema"
+proxysql_stacksize: 1048576
+proxysql_server_capabilities: 569867
+proxysql_server_version: 5.5.30
+proxysql_connect_timeout_server: 1000
+proxysql_monitor_user: "monitor"
+proxysql_monitor_password: "monitor"
+proxysql_monitor_history: 600000
+proxysql_monitor_connect_interval: 60000
+proxysql_monitor_ping_interval: 10000
+proxysql_monitor_read_only_interval: 1500
+proxysql_monitor_read_only_timeout: 500
+proxysql_monitor_slave_lag_when_null: 60
+proxysql_monitor_replication_lag_interval: 10000
+#proxysql_monitor_galera_healthcheck_interval: 200
+#proxysql_monitor_galera_healthcheck_timeout: 80
+proxysql_ping_timeout_server: 500
+proxysql_ping_interval_server_msec: 120000
+proxysql_commands_stats: "true"
+proxysql_sessions_sort: "true"
+proxysql_connect_retries_on_failure: 10
+proxysql_mysql_raw_options:
+  - long_query_time=3
+
+# Query rules
+# Format:
+# proxysql_mysql_query_rules:
+#   - match_pattern: "^SELECT .* FOR UPDATE$"
+#     destination_hostgroup: 0 # default: 0
+#     active: 1 # default: 1
+#     apply: 1 # default: 1
+#   - match_pattern: "^SELECT"
+#     destination_hostgroup: 1 # default: 0
+#     active: 1 # default: 1
+#     apply: 1 # default: 1
+#
+proxysql_mysql_query_rules: []
+
+# Servers
+# Format:
+# proxysql_mysql_servers:
+#   - address: 127.0.0.1
+#     port: 3306 # default: 3306
+#     status: "ONLINE" # default: ONLINE
+#     gtid_port: 0 # default: 0
+#     hostgroup: 0 # default: 0
+#     weight: 1 # default: 1
+#     compression: 0 # default: 0
+#     max_connections: 200 # default: 200
+#     max_replication_lag: 0 # default: 0
+#     use_ssl: 0 # default: 0
+#     max_latency_ms: 0 # default: 0
+#     comment: "" # default: ""
+#   - address: 1.2.3.4
+#     port: 3306 # default: 3306
+#     status: "ONLINE" # default: ONLINE
+#     gtid_port: 0 # default: 0
+#     hostgroup: 0 # default: 0
+#     weight: 1 # default: 1
+#     compression: 0 # default: 0
+#     max_connections: 200 # default: 200
+#     max_replication_lag: 0 # default: 0
+#     use_ssl: 0 # default: 0
+#     max_latency_ms: 0 # default: 0
+#     comment: "" # default: ""
+proxysql_mysql_servers: []
+
+# Users
+# Format:
+# proxysql_mysql_users:
+#   - username: foo
+#     password: bar
+#     default_hostgroup: 0  # default: 0
+#     max_connections: 1000  # default: 1000
+#     default_schema: "information_schema" # default: information_schema
+#     active: 1 # default: 1
+proxysql_mysql_users: []
+
+# Replication hostgroups
+# Format:
+# proxysql_mysql_replication_hostgroups:
+#   - writer_hostgroup: 0
+#     reader_hostgroup: 1
+#     check_type: "read_only" # default: read_only
+#     comment: "mycluster"
+proxysql_mysql_replication_hostgroups: []
