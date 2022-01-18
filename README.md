@@ -128,7 +128,7 @@ _Use a fixed tag instead of origin/master if possible_
 ```yaml
 - hosts: proxylb
   roles:
-    - role-proxysql
+    - ansible-proxysql
 ```
 
 ### Inventory
@@ -147,22 +147,6 @@ proxysql_mysql_servers:
    - address: 5.6.7.8
      port: 3306
      hostgroup: 1
-```
-
-## Tests
-
-To run tests locally in a Vagrant machine, just hit:
-
-```bash
-vagrant up
-vagrant ssh -c specs
-```
-
-If you want to run the test playbook fast (i.e., without re-installing Ansible),
-just run:
-
-```bash
-vagrant ssh -c 'specs -p'
 ```
 
 ## Notes
