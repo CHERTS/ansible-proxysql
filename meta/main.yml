@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: ansible-proxysql
+  role_name: proxysql
   namespace: cherts
   author: Mikhail Grigorev
   description: Installing and maintaining ProxySQL for RedHat/Ubuntu
