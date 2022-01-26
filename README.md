@@ -1,6 +1,7 @@
 [![Ansible Galaxy](https://img.shields.io/badge/role-cherts.proxysql-blue)](https://galaxy.ansible.com/cherts/proxysql)
 [![Ansible Galaxy Quality Score](https://img.shields.io/ansible/quality/57626)](https://galaxy.ansible.com/cherts/proxysql)
 [![Ansible Galaxy Downloads](https://img.shields.io/ansible/role/d/57626.svg?color=blue)](https://galaxy.ansible.com/cherts/proxysql)
+[![Build Status](https://app.travis-ci.com/CHERTS/ansible-proxysql.svg?branch=main)](https://app.travis-ci.com/CHERTS/ansible-proxysql)
 
 # ProxySQL Ansible role
 
