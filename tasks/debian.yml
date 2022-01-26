@@ -13,8 +13,14 @@
     repo: 'deb https://repo.proxysql.com/ProxySQL/proxysql-{{ proxysql_version }}.x/{{ ansible_distribution_release }} ./'
     state: present
   become: yes
-  notify:
-    - Update apt cache
+  tags:
+    - proxysql
+    - proxysql_repo
+
+- name: PROXYSQL DEBIAN TASK | Update apt cache
+  apt:
+    update_cache: yes
+  become: yes
   tags:
     - proxysql
     - proxysql_repo

@@ -10,8 +10,15 @@
     state: "{{ item.state | default('present') }}"
   with_items: "{{ proxysql_repo_yum }}"
   become: yes
-  notify:
-    - Yum clean
+  tags:
+    - proxysql
+    - proxysql_repo
+
+- name: PROXYSQL REDHAT TASK | Yum clean
+  command: yum clean all
+  args:
+    warn: False
+  become: yes
   tags:
     - proxysql
     - proxysql_repo
