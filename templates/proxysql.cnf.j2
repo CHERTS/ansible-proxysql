@@ -144,6 +144,8 @@ mysql_query_rules:
   {
     rule_id={{ loop.index }}
     active={{ rule.active | default(1) }},
+    {% if rule.username is defined %}username={{ rule.username }},{% endif %}
+    {% if rule.schemaname is defined %}schemaname={{ rule.schemaname }},{% endif %}
     match_pattern="{{ rule.match_pattern }}",
     destination_hostgroup={{ rule.destination_hostgroup | default(0) }},
     apply={{ rule.apply | default(1) }}

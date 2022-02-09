@@ -80,10 +80,14 @@ proxysql_mysql_raw_options:
 # Format:
 # proxysql_mysql_query_rules:
 #   - match_pattern: "^SELECT .* FOR UPDATE$"
+#     username: zabbix # optional
+#     schemaname: zabbix # optional
 #     destination_hostgroup: 0 # default: 0
 #     active: 1 # default: 1
 #     apply: 1 # default: 1
 #   - match_pattern: "^SELECT"
+#     username: zabbix # optional
+#     schemaname: zabbix # optional
 #     destination_hostgroup: 1 # default: 0
 #     active: 1 # default: 1
 #     apply: 1 # default: 1
